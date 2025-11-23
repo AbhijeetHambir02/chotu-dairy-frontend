@@ -1,0 +1,118 @@
+body {
+  background-color: #f8f9fa;
+}
+
+.card {
+  border-radius: 12px;
+}
+
+
+
+/* --- Custom Sale Table --- */
+.custom-sale-table thead th {
+  background-color: #0b79e8;   /* Darker header */
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+  padding: 12px;
+  border-bottom: 2px solid #005f94;
+}
+
+.custom-sale-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #dee2e6;
+}
+
+.custom-sale-table thead {
+  background: #0b79e8;
+  color: white;
+}
+
+.custom-sale-table th,
+.custom-sale-table td {
+  padding: 12px 14px !important;
+  vertical-align: middle;
+}
+
+.custom-sale-table tbody tr:hover {
+  background: #0b62b9;
+  cursor: pointer;
+}
+
+.custom-sale-table tbody tr:nth-child(even) {
+  background-color: #fafafa;
+}
+
+.custom-sale-table tbody td {
+  font-size: 15px;
+}
+
+.custom-sale-table th {
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.3px;
+  border-bottom: none !important;
+}
+
+
+
+
+/* --------------- Dashboard Card styling -----------------*/
+.stat-card {
+  background-color: #99d8f354;
+  border-radius: 12px;
+  padding: 30px 20px;
+ box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); /* stronger shadow */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.stat-card:hover {
+  transform: translateY(-10px); /* lift more */
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.25); /* deeper shadow on hover */
+}
+
+
+/* Text inside card */
+.stat-value {
+  font-size: 1.8rem;
+  color: #007bff; /* primary blue */
+  margin-bottom: 8px;
+  font-weight: 700;
+}
+
+.stat-label {
+  font-size: 1rem;
+  color: #555555;
+  font-weight: 500;
+}
+
+/* Top selling product list styling */
+.list-group-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.list-group-item:hover {
+  background-color: #f8f9fa;
+}
+
+/* Remove underline for links */
+.text-decoration-none {
+  text-decoration: none !important;
+}
+
+/* Add spacing between cards in smaller screens */
+@media (max-width: 768px) {
+  .stat-card {
+    margin-bottom: 15px;
+  }
+}
+
+
