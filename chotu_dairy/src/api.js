@@ -1,6 +1,7 @@
 import axios from "axios";
 
-const API_BASE = "http://127.0.0.1:8000/chotu-dairy";
+// const API_BASE = "http://127.0.0.1:8000/chotu-dairy";
+const API_BASE = "https://chotu-dairy-backend.onrender.com/chotu-dairy";
 
 // ------------------- Products API -------------------
 export const getProducts = () => {
