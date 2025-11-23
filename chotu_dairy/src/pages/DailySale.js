@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import DatePicker from "react-datepicker";
 import { getSales } from "../api";
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
@@ -13,7 +12,6 @@ export default function DailySale() {
         try {
             const istDate = new Date(date.getTime() + 5.5 * 60 * 60 * 1000);
             const formattedDate = istDate.toISOString().slice(0, 10);
-
             const res = await getSales(formattedDate);
             setSalesList(res.data);
         } catch (error) {
@@ -33,15 +31,26 @@ export default function DailySale() {
         setSelectedDate(newDate);
     };
 
+    const handleDateInputChange = (e) => {
+        if (e.target.value) {
+            setSelectedDate(new Date(e.target.value + "T00:00:00"));
+        }
+    };
+
+    const formatDateForInput = (date) => {
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, "0");
+        const d = String(date.getDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`;
+    };
+
+    const formatDateDisplay = (date) => {
+        const options = { day: "2-digit", month: "short", year: "numeric" };
+        return date.toLocaleDateString("en-GB", options);
+    };
+
     const totalSales = salesList.reduce((sum, sale) => sum + Number(sale.total_price), 0);
 
-    const formattedSelectedDate = selectedDate.toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-    });
-
-    // Prepare top 5 sales for Pie Chart
     const topSalesData = [...salesList]
         .sort((a, b) => b.total_price - a.total_price)
         .slice(0, 5)
@@ -55,27 +64,44 @@ export default function DailySale() {
     return (
         <div className="container py-4">
 
-            {/* Date Slider / Picker */}
-            <h4 className="d-flex justify-content-between align-items-center mb-4">
-                <button className="btn btn-outline-primary" onClick={() => changeDate(-1)}>
-                    <i class="bi bi-caret-left"></i>
+            {/* DATE PICKER */}
+            <div className="d-flex justify-content-center align-items-center mb-4 gap-2">
+                <button
+                    className="btn btn-outline-primary"
+                    onClick={() => changeDate(-1)}
+                    style={{ minWidth: "45px" }}
+                >
+                    <i className="bi bi-caret-left"></i>
                 </button>
-                <DatePicker
-                    selected={selectedDate}
-                    onChange={(date) => setSelectedDate(date)}
-                    dateFormat="dd MMM yyyy"
-                    className="form-control text-center"
-                />
-                <button className="btn btn-outline-primary" onClick={() => changeDate(1)}>
-                    <i class="bi bi-caret-right"></i>
-                </button>
-            </h4>
 
-            {/* Pie Chart */}
+                <input
+                    type="date"
+                    className="form-control text-center"
+                    value={formatDateForInput(selectedDate)}
+                    onChange={handleDateInputChange}
+                    style={{ minWidth: "200px", cursor: "pointer" }}
+                />
+
+                <button
+                    className="btn btn-outline-primary"
+                    onClick={() => changeDate(1)}
+                    style={{ minWidth: "45px" }}
+                >
+                    <i className="bi bi-caret-right"></i>
+                </button>
+            </div>
+
+            {/* Visible Date Text */}
+            <div className="text-center mb-3">
+                <h5 className="text-primary">{formatDateDisplay(selectedDate)}</h5>
+            </div>
+
+            {/* PIE CHART */}
             {topSalesData.length > 0 && (
                 <div className="card shadow-sm mb-4">
                     <div className="card-body">
-                        <div className="" style={{ height: 350 }}>
+                        <h5 className="card-title text-center mb-3">Top 5 Products</h5>
+                        <div style={{ height: 350 }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
                                     <Pie
@@ -85,11 +111,10 @@ export default function DailySale() {
                                         cx="50%"
                                         cy="50%"
                                         outerRadius={100}
-                                        fill="#8884d8"
                                         label
                                     >
                                         {topSalesData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            <Cell key={index} fill={COLORS[index % COLORS.length]} />
                                         ))}
                                     </Pie>
                                     <Tooltip formatter={(value) => `₹${value}`} />
@@ -101,11 +126,14 @@ export default function DailySale() {
                 </div>
             )}
 
-            {/* Table */}
+            {/* TABLE */}
             {loading ? (
-                <div className="text-center py-5">Loading sales...</div>
+                <div className="text-center py-5">
+                    <div className="spinner-border text-primary"></div>
+                    <p className="mt-2">Loading sales...</p>
+                </div>
             ) : (
-                <div className="table-responsive mt-10">
+                <div className="table-responsive mt-4">
                     <table className="table table-striped">
                         <thead className="table-dark">
                             <tr>
@@ -116,6 +144,7 @@ export default function DailySale() {
                                 <th>Total</th>
                             </tr>
                         </thead>
+
                         <tbody>
                             {salesList.length > 0 ? (
                                 salesList
@@ -124,9 +153,9 @@ export default function DailySale() {
                                         <tr key={sale.id}>
                                             <td>{index + 1}</td>
                                             <td>{sale.name}</td>
-                                            <td>{sale.price}</td>
+                                            <td>₹{sale.price}</td>
                                             <td>{sale.quantity}</td>
-                                            <td>{sale.total_price}</td>
+                                            <td>₹{sale.total_price}</td>
                                         </tr>
                                     ))
                             ) : (
@@ -137,11 +166,12 @@ export default function DailySale() {
                                 </tr>
                             )}
                         </tbody>
+
                         {salesList.length > 0 && (
                             <tfoot>
                                 <tr className="table-active">
                                     <td colSpan={4} className="text-end fw-bold">Total Sales:</td>
-                                    <td className="fw-bold">₹{totalSales.toLocaleString('en-IN')}</td>
+                                    <td className="fw-bold">₹{totalSales.toLocaleString("en-IN")}</td>
                                 </tr>
                             </tfoot>
                         )}
