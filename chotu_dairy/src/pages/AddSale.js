@@ -126,10 +126,10 @@ export default function AddSale() {
     </div>
   );
 
-  const setPageLoader = () => {
+  const setPageLoader = async () => {
     setFullPageLoading(true);
     try {
-      const res = pageLoader();
+      const res = await pageLoader();
     } catch (error) {
       console.log("Page loader error:", error);
     }
