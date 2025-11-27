@@ -3,6 +3,11 @@ import axios from "axios";
 // const API_BASE = "http://127.0.0.1:8000/chotu-dairy";
 const API_BASE = "https://chotu-dairy-backend.onrender.com/chotu-dairy";
 
+// ------------------- Page Loader API -------------------
+export const pageLoader = () => {
+  return axios.get(`https://chotu-dairy-backend.onrender.com`);
+};
+
 // ------------------- Products API -------------------
 export const getProducts = () => {
   return axios.get(`${API_BASE}/products`);
