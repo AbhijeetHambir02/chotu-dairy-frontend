@@ -151,29 +151,38 @@ export default function AddProductPage() {
               </thead>
 
               <tbody>
-                {products
-                  .filter((product) =>
-                    product.product_name
-                      .toLowerCase()
-                      .includes(searchTerm.toLowerCase())
-                  )
-                  .map((product, index) => (
-                    <tr key={product.id}>
-                      <td>{index + 1}</td>
-                      <td>{product.product_name}</td>
-                      <td>₹{product.price}</td>
+                {products.filter((product) =>
+                  product.product_name.toLowerCase().includes(searchTerm.toLowerCase())
+                ).length === 0 ? (
+                  <tr>
+                    <td colSpan="4" className="text-center text-muted py-3">
+                      No products found
+                    </td>
+                  </tr>
+                ) : (
+                  products
+                    .filter((product) =>
+                      product.product_name.toLowerCase().includes(searchTerm.toLowerCase())
+                    )
+                    .map((product, index) => (
+                      <tr key={product.id}>
+                        <td>{index + 1}</td>
+                        <td>{product.product_name}</td>
+                        <td>₹{product.price}</td>
 
-                      {/* DELETE BUTTON */}
-                      <td>
-                        <i
-                          className="bi bi-trash text-danger"
-                          style={{ cursor: "pointer", fontSize: "1.2rem" }}
-                          onClick={() => handleDeleteProduct(product.id)}
-                        ></i>
-                      </td>
-                    </tr>
-                  ))}
+                        {/* DELETE BUTTON */}
+                        <td>
+                          <i
+                            className="bi bi-trash text-danger"
+                            style={{ cursor: "pointer", fontSize: "1.2rem" }}
+                            onClick={() => handleDeleteProduct(product.id)}
+                          ></i>
+                        </td>
+                      </tr>
+                    ))
+                )}
               </tbody>
+
             </table>
           )}
         </div>
