@@ -12,28 +12,60 @@ export default function AddSale() {
 
   const [salesList, setSalesList] = useState([]);
 
-  const [loadingSales, setLoadingSales] = useState(true); // for sales table
-  const [submitting, setSubmitting] = useState(false);   // for add sale button
-  const [loadingProducts, setLoadingProducts] = useState(true); // for products options
+  const [loadingSales, setLoadingSales] = useState(true); 
+  const [submitting, setSubmitting] = useState(false);   
+  const [loadingProducts, setLoadingProducts] = useState(true); 
 
 
-  // Load products on mount
+  // ---------------- LOADER COMPONENT ---------------- //
+  const FullPageLoader = () => (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        width: "100vw",
+        height: "100vh",
+        background: "rgba(255,255,255,0.7)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        zIndex: 9999,
+      }}
+    >
+      <div
+        className="spinner-border text-primary"
+        style={{ width: "3rem", height: "3rem" }}
+      ></div>
+    </div>
+  );
+
+  const showLoader = loadingProducts || loadingSales || submitting;
+
+
+
+  // ---------------- FETCH PRODUCTS ---------------- //
   const fetchProductsList = async () => {
     try {
+      setLoadingProducts(true);
       const res = await getProducts();
       setProducts(res.data);
     } catch (error) {
       console.log("Error loading products:", error);
+    } finally {
+      setLoadingProducts(false);
     }
   };
 
 
-  // fetch sales data
+  // ---------------- FETCH SALES ---------------- //
   const fetchSalesList = async () => {
     try {
       setLoadingSales(true);
-      // const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
-      const today = new Date().toLocaleString("en-CA", { timeZone: "Asia/Kolkata" }).split(",")[0];
+      const today = new Date()
+        .toLocaleString("en-CA", { timeZone: "Asia/Kolkata" })
+        .split(",")[0];
+
       const res = await getSales(today);
       setSalesList(res.data);
     } catch (error) {
@@ -43,14 +75,17 @@ export default function AddSale() {
     }
   };
 
+
   useEffect(() => {
     fetchProductsList();
     fetchSalesList();
   }, []);
 
-  // convert products to react-select format
+
+
+  // Convert products to react-select options
   const productOptions = products
-    .sort((a, b) => a.product_name.localeCompare(b.product_name)) // A → Z
+    .sort((a, b) => a.product_name.localeCompare(b.product_name))
     .map((p) => ({
       value: p.id,
       label: p.product_name,
@@ -59,6 +94,7 @@ export default function AddSale() {
 
 
 
+  // ---------------- SUBMIT SALE ---------------- //
   const handleSaleSubmit = async (e) => {
     e.preventDefault();
 
@@ -71,40 +107,47 @@ export default function AddSale() {
       setSubmitting(true);
 
       const saleData = {
-        name: selectedProduct.label,         // product name
-        product_id: selectedProduct.value,   // product id
+        name: selectedProduct.label,
+        product_id: selectedProduct.value,
         quantity: parseInt(quantity),
         total_price: selectedProduct.price * parseInt(quantity),
-        date: new Date().toLocaleString("en-CA", { timeZone: "Asia/Kolkata" }).split(",")[0]
+        date: new Date()
+          .toLocaleString("en-CA", { timeZone: "Asia/Kolkata" })
+          .split(",")[0],
       };
 
+      await addSale(saleData);
 
-      // Call POST API
-      const res = await addSale(saleData);
-
-      // Clear inputs
+      // Clear form
       setSelectedProduct("");
       setQuantity("");
-      // Refresh sales list
-      fetchSalesList();
 
+      // Reload today's sales
+      fetchSalesList();
     } catch (error) {
       console.error("Error adding product:", error);
       alert("Failed to add product");
     } finally {
       setSubmitting(false);
     }
-
   };
 
-  // Calculate today's total sales
-  const todayTotal = salesList.reduce((sum, sale) => sum + Number(sale.total_price), 0);
+
+
+  // Total Sales of Today
+  const todayTotal = salesList.reduce(
+    (sum, sale) => sum + Number(sale.total_price),
+    0
+  );
+
 
 
   return (
     <div className="container py-4">
 
-      {/* --------- Card: Add Sale Form --------- */}
+      {showLoader && <FullPageLoader />}
+
+      {/* ----------- Add Sale Form Card ----------- */}
       <div className="card shadow-sm mb-4 p-3">
         <div className="card-body">
           <h4 className="fw-bold mb-3">Add New Sale</h4>
@@ -151,11 +194,13 @@ export default function AddSale() {
         </div>
       </div>
 
-      {/* --------- Sale Table with Search --------- */}
+
+
+      {/* ----------- Today Sales Table ----------- */}
       <div className="mt-6">
         <h4 className="fw-bold mb-3 d-flex justify-content-between">
           <span>Today's Sales</span>
-          <span> ₹{todayTotal}</span>
+          <span>₹{todayTotal}</span>
         </h4>
 
 
@@ -169,6 +214,7 @@ export default function AddSale() {
           />
         </div>
 
+
         <div className="table-responsive">
           <table className="table custom-sale-table">
             <thead>
@@ -180,10 +226,13 @@ export default function AddSale() {
                 <th>Total</th>
               </tr>
             </thead>
+
             <tbody>
               {loadingSales ? (
                 <tr>
-                  <td colSpan="5" className="text-center">Loading sales...</td>
+                  <td colSpan="5" className="text-center">
+                    Loading sales...
+                  </td>
                 </tr>
               ) : (
                 salesList
@@ -202,19 +251,20 @@ export default function AddSale() {
                   ))
               )}
             </tbody>
+
             <tfoot>
               <tr className="table-active">
-                <td colSpan={4} className="text-end fw-bold">Total Sales:</td>
-                <td className="fw-bold">₹{todayTotal.toLocaleString('en-IN')}</td>
+                <td colSpan={4} className="text-end fw-bold">
+                  Total Sales:
+                </td>
+                <td className="fw-bold">
+                  ₹{todayTotal.toLocaleString("en-IN")}
+                </td>
               </tr>
             </tfoot>
-
           </table>
         </div>
       </div>
-
-
-
     </div>
   );
 }
