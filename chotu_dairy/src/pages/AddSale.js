@@ -40,7 +40,7 @@ export default function AddSale() {
     </div>
   );
 
-  const showLoader = loadingProducts || loadingSales || submitting;
+  const showLoader = loadingProducts || loadingSales;
 
 
 
