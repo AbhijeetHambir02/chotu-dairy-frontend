@@ -155,7 +155,7 @@ export default function WeeklySales() {
                     )}
                 </table>
             </div>
-            )};
+            )}
         </div>
     );
 }
